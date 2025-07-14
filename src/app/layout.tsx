@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import NavBar from "@/components/NavBar";
+import MobileDrawer from "@/components/MobileDrawer";
+import Link from "next/link";
+import Image from "next/image";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +31,20 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <header className="p-4 flex items-center justify-between">
+          <Link href="/">
+            <Image 
+              src='/image_assets/Logo.png'
+              alt="Guild Logo"
+              width={175}
+              height={58}
+              priority
+              className="w-48 sm:w-52 md:w-60 lg:w-72"
+            />
+          </Link>
+          <NavBar />
+          <MobileDrawer />
+        </header>
         {children}
       </body>
     </html>

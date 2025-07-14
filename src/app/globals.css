@@ -5,6 +5,66 @@
   --foreground: #171717;
 }
 
+@font-face {
+  font-family: "Kaushan Script";
+  src: url('../../public/fonts/KaushanScript-Regular.ttf');
+}
+
+@font-face {
+  font-family: "Sansita";
+  src: url('../../public/fonts/Sansita-Regular.ttf');
+}
+
+@font-face {
+  font-family: "Sansita-Italic";
+  src: url('../../public/fonts/Sansita-Italic.ttf');
+}
+
+@font-face {
+  font-family: "Sansita-BoldItalic";
+  src: url('../../public/fonts/Sansita-BlackItalic.ttf');
+}
+
+@font-face {
+  font-family: "Sansita-BlackItalic";
+  src: url('../../public/fonts/Sansita-BlackItalic.ttf');
+}
+
+@font-face {
+  font-family: "Sansita-Bold";
+  src: url('../../public/fonts/Sansita-Bold.ttf');
+}
+
+@font-face {
+  font-family: "Sansita-Black";
+  src: url('../../public/fonts/Sansita-Black.ttf');
+}
+
+@font-face {
+  font-family: "Sansita-ExtraBold";
+  src: url('../../public/fonts/Sansita-ExtraBold.ttf');
+}
+
+@font-face {
+  font-family: "Sansita-ExtraBoldItalic";
+  src: url('../../public/fonts/Sansita-ExtraBoldItalic.ttf');
+}
+
+
+
+
+@theme {
+  --font-kaushanscript: "Kaushan Script", cursive;
+  --font-sansita: "Sansita", sans-serif;
+  --font-sansita-bold: "Sansita-Bold", sans-serif;
+  --font-sansita-black: "Sansita-Black", sans-serif;
+  --font-sansita-italic: "Sansita-Italic", sans-serif;
+  --font-sansita-extrabold: "Sansita-ExtraBold", sans-serif;
+  --font-sansita-bolditalic: "Sansita-BoldItalic", sans-serif;
+  --font-sansita-blackitalic: "Sansita-BlackItalic", sans-serif;
+  --font-sansita-extrabolditalic: "Sansita-ExtraBoldItalic", sans-serif;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
