@@ -1,0 +1,421 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String             @id @default(cuid())
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  email            String             @unique
+  password         String
+  name             String
+  gender           Gender
+  emailVerified    Boolean            @default(false)
+  role             Role               @default(SEEKER)
+  verified         Boolean            @default(false)
+  Adventurer       Adventurer[]
+  Seeker           Seeker[]
+  Gossip           Gossip[]
+  GossipLike       GossipLike[]
+  GossipReply      GossipReply[]
+  TavernStory      TavernStory[]
+  StoryLike        StoryLike[]
+  StoryReply       StoryReply[]
+  AppraisalRequest AppraisalRequest[]
+  VerifyEmail      VerifyEmail[]
+}
+
+model VerifyEmail {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  verifyToken String   @unique
+  expiresAt   DateTime
+}
+
+model Seeker {
+  id                 String               @id @default(cuid())
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  user               User                 @relation(fields: [userId], references: [id])
+  userId             String
+  questCount         Int
+  moneySpent         Float
+  credits            Float                @default(0)
+  Quest              Quest[]
+  SeekerVerification SeekerVerification[]
+  CreditLog          CreditLog[]
+}
+
+model SeekerVerification {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  seeker      Seeker   @relation(fields: [seekerId], references: [id])
+  seekerId    String
+  nationality String
+  address     String
+  idProof     String
+}
+
+model Adventurer {
+  id                     String                   @id @default(cuid())
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  user                   User                     @relation(fields: [userId], references: [id])
+  userId                 String
+  rank                   Rank                     @default(F)
+  class                  String
+  skills                 String
+  creditsReceived        Float
+  AdventurerVerification AdventurerVerification[]
+  PartyMember            PartyMember[]
+  Quest                  Quest[]
+  AdventurerSkill        AdventurerSkill[]
+  PartyApplication       PartyApplication[]
+}
+
+model AdventurerVerification {
+  id                String     @id @default(cuid())
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  adventurer        Adventurer @relation(fields: [adventurerId], references: [id])
+  adventurerId      String
+  nationality       String
+  address           String
+  idProof           String
+  servicePermission Boolean    @default(false)
+  serviceId         String
+  github            String?
+  linkedIn          String?
+}
+
+model Party {
+  id                   String                 @id @default(cuid())
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  name                 String
+  rank                 Rank
+  memberCount          Int
+  Quest                Quest[]
+  PartyMember          PartyMember[]
+  PartyRecruitmentPost PartyRecruitmentPost[]
+  PartyQuarter         PartyQuarter[]
+}
+
+model PartyQuarter {
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  party        Party    @relation(fields: [partyId], references: [id])
+  partyId      String
+  quartersName String   @default("Quarters")
+  strategyDesk Boolean  @default(false)
+  figma        String?
+  notion       String?
+}
+
+model PartyMember {
+  id            String       @id @default(cuid())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  memberStatus  MemberStatus @default(ACTIVE)
+  leavingReason String?
+  party         Party        @relation(fields: [partyId], references: [id])
+  partyId       String
+  adventurer    Adventurer   @relation(fields: [adventurerId], references: [id])
+  adventurerId  String
+  partyRole     PartyRole    @default(MEMBER)
+  PartyQuest    PartyQuest[]
+}
+
+model Quest {
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  acceptedAt     DateTime
+  title          String       @db.VarChar(255)
+  description    String
+  priority       Priority     @default(NORMAL)
+  acceptBefore   DateTime
+  deadline       DateTime
+  rank           Rank
+  skills         String
+  monetaryReward Float
+  xpReward       Int
+  creditReward   Float
+  status         Status       @default(POSTED)
+  seeker         Seeker       @relation(fields: [seekerId], references: [id])
+  seekerId       String
+  adventurer     Adventurer?  @relation(fields: [adventurerId], references: [id])
+  adventurerId   String?
+  party          Party?       @relation(fields: [partyId], references: [id])
+  partyId        String?
+  PartyQuest     PartyQuest[]
+  QuestSkill     QuestSkill[]
+}
+
+model PartyQuest {
+  id          String      @id @default(cuid())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  quest       Quest       @relation(fields: [questId], references: [id])
+  questId     String
+  member      PartyMember @relation(fields: [memberId], references: [id])
+  memberId    String
+  workOn      String
+  status      Status      @default(ASSIGNED)
+  rewardShare Int
+}
+
+model Skill {
+  id              String            @id @default(cuid())
+  createdAt       DateTime          @default(now())
+  name            String
+  verified        Boolean           @default(false)
+  AdventurerSkill AdventurerSkill[]
+  QuestSkill      QuestSkill[]
+}
+
+model AdventurerSkill {
+  id           String     @id @default(cuid())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  adventurer   Adventurer @relation(fields: [adventurerId], references: [id])
+  adventurerId String
+  skill        Skill      @relation(fields: [skillId], references: [id])
+  skillId      String
+  proficiency  Int        @default(1)
+}
+
+model QuestSkill {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  quest       Quest    @relation(fields: [questId], references: [id])
+  questId     String
+  skill       Skill    @relation(fields: [skillId], references: [id])
+  skillId     String
+  proficiency Int      @default(1)
+}
+
+model Gossip {
+  id          String        @id @default(cuid())
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  author      User          @relation(fields: [authorId], references: [id])
+  authorId    String
+  content     String
+  likeCount   Int           @default(0)
+  replyCount  Int           @default(0)
+  GossipLike  GossipLike[]
+  GossipReply GossipReply[]
+}
+
+model GossipLike {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  gossip    Gossip   @relation(fields: [gossipId], references: [id])
+  gossipId  String
+}
+
+model GossipReply {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  content   String
+  gossip    Gossip   @relation(fields: [gossipId], references: [id])
+  gossipId  String
+  likeCount Int      @default(0)
+}
+
+model TavernStory {
+  id         String       @id @default(cuid())
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  author     User         @relation(fields: [authorId], references: [id])
+  authorId   String
+  title      String
+  story      String
+  tags       String?
+  likeCount  Int          @default(0)
+  replyCount Int          @default(0)
+  StoryLike  StoryLike[]
+  StoryReply StoryReply[]
+}
+
+model StoryLike {
+  id        String      @id @default(cuid())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  author    User        @relation(fields: [authorId], references: [id])
+  authorId  String
+  story     TavernStory @relation(fields: [storyId], references: [id])
+  storyId   String
+}
+
+model StoryReply {
+  id        String      @id @default(cuid())
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  author    User        @relation(fields: [authorId], references: [id])
+  authorId  String
+  content   String
+  story     TavernStory @relation(fields: [storyId], references: [id])
+  storyId   String
+  likeCount Int         @default(0)
+}
+
+model PartyRecruitmentPost {
+  id                String   @id @default(cuid())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  party             Party    @relation(fields: [partyId], references: [id])
+  partyId           String
+  applicationStatus PRStatus @default(OPEN)
+  title             String
+  classRequired     String
+  rankRequired      Rank
+  description       String
+  avgShare          Float
+  applyBefore       DateTime
+}
+
+model PartyApplication {
+  id                   String            @id @default(cuid())
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  adventurer           Adventurer        @relation(fields: [adventurerId], references: [id])
+  adventurerId         String
+  coverLetter          String
+  allowedToViewProfile Boolean           @default(false)
+  applicationStatus    ApplicationStatus @default(APPLIED)
+}
+
+model CreditLog {
+  id              String            @id @default(cuid())
+  createdAt       DateTime          @default(now())
+  seeker          Seeker            @relation(fields: [seekerId], references: [id])
+  seekerId        String
+  creditCount     Float
+  category        CreditCatagory    @default(GUILD_ASSIGNED)
+  expiresAt       DateTime?
+  CreditPurchased CreditPurchased[]
+}
+
+model CreditPurchased {
+  id             String    @id @default(cuid())
+  createdAt      DateTime  @default(now())
+  creditlog      CreditLog @relation(fields: [logId], references: [id])
+  logId          String
+  price          Float
+  paymentThrough String
+}
+
+model AppraisalRequest {
+  id             String        @id @default(cuid())
+  createdAt      DateTime      @default(now())
+  user           User          @relation(fields: [userId], references: [id])
+  userId         String
+  type           AppraisalType
+  price          Float
+  paymentThrough String
+}
+
+model RankRequirement {
+  id                String   @id @default(cuid())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  rank              Rank
+  xpRequired        Int
+  minMonetaryReward Float
+  minXPReward       Float
+  maxXPReward       Float
+  notes             String
+}
+
+enum Role {
+  ADVENTURER
+  SEEKER
+  GUILDMASTER
+}
+
+enum AppraisalType {
+  ADVENTURER_RANK
+  QUEST_RANK
+}
+
+enum CreditCatagory {
+  GUILD_ASSIGNED
+  BOUGHT
+}
+
+enum Status {
+  POSTED
+  ASSIGNED
+  IN_PROGRESS
+  IN_REVIEW
+  COMPLETED
+}
+
+enum PartyRole {
+  LEADER
+  CO_LEADER
+  MEMBER
+}
+
+enum Rank {
+  S
+  A
+  B
+  C
+  D
+  E
+  F
+}
+
+enum Priority {
+  URGENT
+  NORMAL
+}
+
+enum PRStatus {
+  OPEN
+  CLOSED
+}
+
+enum MemberStatus {
+  ACTIVE
+  INACTIVE
+  LEFT
+}
+
+enum ApplicationStatus {
+  APPLIED
+  PROCESSING
+  SELECTED
+  REJECTED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
