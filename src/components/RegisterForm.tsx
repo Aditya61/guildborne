@@ -1,26 +1,70 @@
 "use client";
-import { useState } from "react";
+import React, { useState } from "react";
+import { NewUser, Gender, Role } from "@/types/guildborne";
 
 const RegisterForm = () => {
+    const [name, setName] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [confirmPassword, setConfirmPassword] = useState<string>('');
+    const [gender, setGender] = useState<Gender | ''>('');
+    const [role, setRole] = useState<Role | ''>('');
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const data: NewUser = { 
+            email: email,
+            name: name,
+            gender: gender as Gender,
+            password: password,
+            role: role as Role,
+        };
+        
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!res.ok) throw new Error('Registration failed!');
+
+            console.log('User Registered.')
+        } catch(err) {
+            console.error(err);
+        }
+    }
+
     return (
-        <form className="sm:w-[600px] bg-[url('../../public/image_assets/parchment.png')] shadow-2xl p-6 sm:p-10">
+        <form onSubmit={handleSubmit} className="sm:w-[600px] bg-[url('../../public/image_assets/parchment.png')] shadow-2xl p-6 sm:p-10">
             <h1 className="w-full mt-4 mb-16 text-center text-xl sm:text-2xl md:text-3xl text-[#810000] font-semibold font-kaushanscript">Guild Registration Form</h1>
-            <label className="w-full my-3 sm:my-6 flex gap-10 text-lg sm:text-xl md:text-2xl text-[#810000] font-kaushanscript">
+            <label className="w-full my-3 sm:my-6 flex items-center gap-10 text-lg sm:text-xl md:text-2xl text-[#810000] font-kaushanscript">
                 Name:
-                <input className="w-full bg-none border-b-2 border-[#810000] transition-all duration-200 focus:border-b-red-700 focus:text-red-700 focus:ring-0 focus:outline-none font-sansita-italic" type="text" name="name" required/>
+                <input 
+                    className="w-full bg-none border-b-2 border-[#810000] transition-all duration-200 focus:border-b-red-700 focus:text-red-700 focus:ring-0 focus:outline-none font-sansita-italic" 
+                    type="text" 
+                    name="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                />
             </label>
-            <div className="w-full my-3 sm:my-6 flex gap-4 sm:gap-10 text-lg sm:text-xl md:text-2xl text-[#810000] font-kaushanscript">
+            <div className="w-full my-3 sm:my-6 flex items-center gap-4 sm:gap-10 text-lg sm:text-xl md:text-2xl text-[#810000] font-kaushanscript">
                 <p>Gender:</p>
                 <label className="flex items-center gap-2 cursor-pointer text-sm sm:text-lg md:text-xl">
                     <input
                         type="radio"
                         name="gender"
-                        value="male"
+                        value="MALE"
+                        checked={gender === "MALE"}
+                        onChange={(e) => setGender(e.target.value as Gender)}
                         className="peer hidden"
                         required
                     />
-                    <div className="size-4 border-3 border-[#810000] rounded-full transition-all duration-300 relative"></div>
-                    <span className="absolute z-10 m-0.5 text-lg font-extrabold flex opacity-0 drop-shadow-sm drop-shadow-red-400 text-red-700 transition-all duration-200 peer-checked:opacity-100">
+                    <div className="size-4 border-3 border-[#810000] peer-checked:bg-[#810000] rounded-full transition-all duration-300 relative"></div>
+                    <span className="absolute z-10 m-0.5 text-lg font-extrabold flex opacity-0 drop-shadow-sm drop-shadow-red-400 text-white transition-all duration-200 peer-checked:opacity-100">
                         ✓
                     </span>
                     <span className="transition-all duration-300">Male</span>
@@ -29,12 +73,14 @@ const RegisterForm = () => {
                     <input
                         type="radio"
                         name="gender"
-                        value="female"
+                        value="FEMALE"
+                        checked={gender === "FEMALE"}
+                        onChange={(e) => setGender(e.target.value as Gender)}
                         className="peer hidden"
                         required
                     />
-                    <div className="size-4 border-3 border-[#810000] rounded-full transition-all duration-300 relative"></div>
-                    <span className="absolute z-10 m-0.5 text-lg font-extrabold flex opacity-0 drop-shadow-sm drop-shadow-red-400 text-red-700 transition-all duration-200 peer-checked:opacity-100">
+                    <div className="size-4 border-3 border-[#810000] peer-checked:bg-[#810000] rounded-full transition-all duration-300 relative"></div>
+                    <span className="absolute z-10 m-0.5 text-lg font-extrabold flex opacity-0 drop-shadow-sm drop-shadow-red-400 text-white transition-all duration-200 peer-checked:opacity-100">
                         ✓
                     </span>
                     <span className="transition-all duration-300">Female</span>
@@ -43,42 +89,73 @@ const RegisterForm = () => {
                     <input
                         type="radio"
                         name="gender"
-                        value="other"
+                        value="OTHER"
+                        checked={gender === "OTHER"}
+                        onChange={(e) => setGender(e.target.value as Gender)}
                         className="peer hidden"
                         required
                     />
-                    <div className="size-4 border-3 border-[#810000] rounded-full transition-all duration-300 relative"></div>
-                    <span className="absolute z-10 m-0.5 text-lg font-extrabold flex opacity-0 drop-shadow-sm drop-shadow-red-400 text-red-700 transition-all duration-200 peer-checked:opacity-100">
+                    <div className="size-4 border-3 border-[#810000] peer-checked:bg-[#810000] rounded-full transition-all duration-300 relative"></div>
+                    <span className="absolute z-10 m-0.5 text-lg font-extrabold flex opacity-0 drop-shadow-sm drop-shadow-red-400 text-white transition-all duration-200 peer-checked:opacity-100">
                         ✓
                     </span>
                     <span className="transition-all duration-300">Other</span>
                 </label>
             </div>
-            <label className="w-full my-3 sm:my-6 flex gap-10 text-lg sm:text-xl md:text-2xl text-[#810000] font-kaushanscript">
+            <label className="w-full my-3 sm:my-6 flex items-center gap-10 text-lg sm:text-xl md:text-2xl text-[#810000] font-kaushanscript">
                 Email:
-                <input className="w-full bg-none border-b-2 border-[#810000] transition-all duration-200 focus:border-b-red-700 focus:text-red-700 focus:ring-0 focus:outline-none font-sansita-italic" type="text" name="email" required/>
+                <input 
+                    className="w-full bg-none border-b-2 border-[#810000] transition-all duration-200 focus:border-b-red-700 focus:text-red-700 focus:ring-0 focus:outline-none font-sansita-italic" 
+                    type="text" 
+                    name="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                />
             </label>
-            <label className="w-full my-3 sm:my-6 flex gap-10 text-lg sm:text-xl md:text-2xl text-[#810000] font-kaushanscript">
+            <label className="w-full my-3 sm:my-6 flex items-center gap-10 text-lg sm:text-xl md:text-2xl text-[#810000] font-kaushanscript">
                 Passphrase:
-                <input className="w-full bg-none border-b-2 border-[#810000] transition-all duration-200 focus:border-b-red-700 focus:text-red-700 focus:ring-0 focus:outline-none font-sansita-italic" type="password" name="password" required/>
+                <input 
+                    className="w-full bg-none border-b-2 border-[#810000] transition-all duration-200 focus:border-b-red-700 focus:text-red-700 focus:ring-0 focus:outline-none font-sansita-italic" 
+                    type="password" 
+                    name="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
             </label>
-            <label className="w-full my-3 sm:my-6 flex gap-10 text-lg sm:text-xl md:text-2xl text-[#810000] font-kaushanscript">
+            <label className="w-full my-3 sm:my-6 flex items-center gap-10 text-lg sm:text-xl md:text-2xl text-[#810000] font-kaushanscript">
                 Confirm Passphrase:
-                <input className="w-full bg-none border-b-2 border-[#810000] transition-all duration-200 focus:border-b-red-700 focus:text-red-700 focus:ring-0 focus:outline-none font-sansita-italic" type="password" name="confirmPassphrase" required/>
+                <input 
+                    className="w-full bg-none border-b-2 border-[#810000] transition-all duration-200 focus:border-b-red-700 focus:text-red-700 focus:ring-0 focus:outline-none font-sansita-italic" 
+                    type="password" 
+                    name="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onInput={(e) => {
+                        const input = e.currentTarget;
+                        input.setCustomValidity(
+                            input.value === password ? '' : 'Passwords do not match!'
+                        );
+                    }}
+                    required
+                />
             </label>
-            <div className="w-full my-3 sm:my-6 flex gap-10 text-lg sm:text-xl md:text-2xl text-[#810000] font-kaushanscript">
+            <div className="my-3 sm:my-6 flex gap-10 text-lg sm:text-xl md:text-2xl text-[#810000] font-kaushanscript">
                 <p>Join the guild as:</p>
-                <div className="w-full">
+                <div>
                     <label className="flex items-center gap-4 cursor-pointer">
                         <input
                             type="radio"
-                            name="userType"
-                            value="adventurer"
+                            name="role"
+                            value="ADVENTURER"
+                            checked={role === "ADVENTURER"}
+                            onChange={(e) => setRole(e.target.value as Role)}
                             className="peer hidden"
                             required
                         />
-                        <div className="size-5 border-4 border-[#810000] rounded-full transition-all duration-300 relative"></div>
-                        <span className="absolute z-10 m-1 text-xl font-extrabold flex opacity-0 drop-shadow-sm drop-shadow-red-400 text-red-700 transition-all duration-200 peer-checked:opacity-100">
+                        <div className="size-5 border-4 border-[#810000] peer-checked:bg-[#810000] rounded-full transition-all duration-300 relative"></div>
+                        <span className="absolute z-10 m-1 text-xl font-extrabold flex opacity-0 drop-shadow-sm drop-shadow-red-400 text-white transition-all duration-200 peer-checked:opacity-100">
                             ✓
                         </span>
                         <span className="transition-all duration-300">Adventurer</span>
@@ -86,16 +163,18 @@ const RegisterForm = () => {
                     <label className="flex items-center gap-4 cursor-pointer">
                         <input
                             type="radio"
-                            name="userType"
-                            value="provider"
+                            name="role"
+                            value="SEEKER"
+                            checked={role === "SEEKER"}
+                            onChange={(e) => setRole(e.target.value as Role)}
                             className="peer hidden"
                             required
                         />
-                        <div className="size-5 border-4 border-[#810000] rounded-full transition-all duration-300 relative"></div>
-                        <span className="absolute z-10 m-1 text-xl font-extrabold flex opacity-0 drop-shadow-sm drop-shadow-red-400 text-red-700 transition-all duration-200 peer-checked:opacity-100">
+                        <div className="size-5 border-4 border-[#810000] peer-checked:bg-[#810000] rounded-full transition-all duration-300 relative"></div>
+                        <span className="absolute z-10 m-1 text-xl font-extrabold flex opacity-0 drop-shadow-sm drop-shadow-red-400 text-white transition-all duration-200 peer-checked:opacity-100">
                             ✓
                         </span>
-                        <span className="transition-all duration-300">Quest Provider</span>
+                        <span className="transition-all duration-300">Seeker</span>
                     </label>
                 </div>
             </div>

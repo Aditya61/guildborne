@@ -1,17 +1,77 @@
 "use client";
+import { UserLogin } from "@/types/guildborne";
 import { useState } from "react";
 
 const LoginForm = () => {
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [rememberMe, setRememberMe] = useState<boolean>(false);
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const data: UserLogin = { 
+            email: email,
+            password: password,
+            rememberMe: rememberMe
+        };
+        
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!res.ok) throw new Error('Login failed!');
+
+            const response = await res.json();
+            console.log(response);
+        } catch(err) {
+            console.error(err);
+        }
+    }
+
     return (
-        <form className="sm:w-[600px] bg-[url('../../public/image_assets/parchment.png')] shadow-2xl p-6 sm:p-10">
+        <form onSubmit={handleSubmit} className="sm:w-[600px] bg-[url('../../public/image_assets/parchment.png')] shadow-2xl p-6 sm:p-10">
             <h1 className="w-full mt-4 mb-16 text-center text-xl sm:text-2xl md:text-3xl text-[#810000] font-semibold font-kaushanscript">Identity Verification Form</h1>
             <label className="w-full my-6 flex gap-10 text-lg sm:text-xl md:text-2xl text-[#810000] font-kaushanscript">
                 Email:
-                <input className="w-full bg-none border-b-2 border-[#810000] transition-all duration-200 focus:border-b-red-700 focus:text-red-700 focus:ring-0 focus:outline-none font-sansita-italic" type="text" name="email" required/>
+                <input 
+                    className="w-full bg-none border-b-2 border-[#810000] transition-all duration-200 focus:border-b-red-700 focus:text-red-700 focus:ring-0 focus:outline-none font-sansita-italic" 
+                    type="text" 
+                    name="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                />
             </label>
             <label className="w-full my-6 flex gap-10 text-lg sm:text-xl md:text-2xl text-[#810000] font-kaushanscript">
                 Passphrase:
-                <input className="w-full bg-none border-b-2 border-[#810000] transition-all duration-200 focus:border-b-red-700 focus:text-red-700 focus:ring-0 focus:outline-none font-sansita-italic" type="password" name="password" required/>
+                <input 
+                    className="w-full bg-none border-b-2 border-[#810000] transition-all duration-200 focus:border-b-red-700 focus:text-red-700 focus:ring-0 focus:outline-none font-sansita-italic" 
+                    type="password" 
+                    name="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
+            </label>
+            <label className="text-lg gap-3 flex items-center sm:text-xl md:text-2xl text-[#810000] font-kaushanscript">
+                <input 
+                    className="peer hidden" 
+                    type="checkbox" 
+                    name="rememberMe"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(!rememberMe)}
+                    required
+                />
+                <div className="bg-none h-5 w-5 border-3 rounded-sm border-[#810000] peer-checked:bg-[#810000]"></div>
+                <span className="absolute z-10 m-0.5 text-xl font-extrabold flex opacity-0 drop-shadow-sm drop-shadow-red-400 text-white transition-all duration-200 peer-checked:opacity-100">
+                    ✓
+                </span>
+                Remember Me
             </label>
             <br />
             <div className="p-2 w-full h-40 flex justify-between items-center">
